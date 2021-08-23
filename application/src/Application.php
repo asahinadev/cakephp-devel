@@ -14,12 +14,17 @@
  */
 namespace App;
 
+use Authentication\AuthenticationService;
+use Authentication\AuthenticationServiceProviderInterface;
+use Authentication\Middleware\AuthenticationMiddleware;
 use Cake\Core\Configure;
 use Cake\Core\Exception\MissingPluginException;
 use Cake\Error\Middleware\ErrorHandlerMiddleware;
 use Cake\Http\BaseApplication;
 use Cake\Routing\Middleware\AssetMiddleware;
 use Cake\Routing\Middleware\RoutingMiddleware;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Application setup class.
@@ -27,10 +32,12 @@ use Cake\Routing\Middleware\RoutingMiddleware;
  * This defines the bootstrapping logic and middleware layers you
  * want to use in your application.
  */
-class Application extends BaseApplication
+class Application extends BaseApplication implements AuthenticationServiceProviderInterface
 {
+
     /**
-     * {@inheritDoc}
+     *
+     * {@inheritdoc}
      */
     public function bootstrap()
     {
@@ -55,33 +62,38 @@ class Application extends BaseApplication
     /**
      * Setup the middleware queue your application will use.
      *
-     * @param \Cake\Http\MiddlewareQueue $middlewareQueue The middleware queue to setup.
+     * @param \Cake\Http\MiddlewareQueue $middlewareQueue
+     *            The middleware queue to setup.
      * @return \Cake\Http\MiddlewareQueue The updated middleware queue.
      */
     public function middleware($middlewareQueue)
     {
-        $middlewareQueue
-            // Catch any exceptions in the lower layers,
-            // and make an error page/response
-            ->add(new ErrorHandlerMiddleware(null, Configure::read('Error')))
 
-            // Handle plugin/theme assets like CakePHP normally does.
-            ->add(new AssetMiddleware([
-                'cacheTime' => Configure::read('Asset.cacheTime'),
-            ]))
+        // Catch any exceptions in the lower layers,
+        // and make an error page/response
+        $middlewareQueue->add(new ErrorHandlerMiddleware(null, Configure::read('Error')));
 
-            // Add routing middleware.
-            // If you have a large number of routes connected, turning on routes
-            // caching in production could improve performance. For that when
-            // creating the middleware instance specify the cache config name by
-            // using it's second constructor argument:
-            // `new RoutingMiddleware($this, '_cake_routes_')`
-            ->add(new RoutingMiddleware($this));
+        // Handle plugin/theme assets like CakePHP normally does.
+        $middlewareQueue->add(new AssetMiddleware([
+            'cacheTime' => Configure::read('Asset.cacheTime')
+        ]));
+
+        // Add routing middleware.
+        // If you have a large number of routes connected, turning on routes
+        // caching in production could improve performance. For that when
+        // creating the middleware instance specify the cache config name by
+        // using it's second constructor argument:
+        // `new RoutingMiddleware($this, '_cake_routes_')`
+        $middlewareQueue->add(new RoutingMiddleware($this));
+
+        // add Authentication after RoutingMiddleware
+        $middlewareQueue->add(new AuthenticationMiddleware($this));
 
         return $middlewareQueue;
     }
 
     /**
+     *
      * @return void
      */
     protected function bootstrapCli()
@@ -95,5 +107,38 @@ class Application extends BaseApplication
         $this->addPlugin('Migrations');
 
         // Load more plugins here
+    }
+
+    public function getAuthenticationService(ServerRequestInterface $request, ResponseInterface $response)
+    {
+        $authenticationService = new AuthenticationService([
+            'unauthenticatedRedirect' => '/users/login',
+            'queryParam' => 'redirect'
+        ]);
+
+        // 識別子をロードして、電子メールとパスワードのフィールドを確認します
+        $authenticationService->loadIdentifier('Authentication.Password', [
+            'fields' => [
+                'username' => [
+                    'username',
+                    'email'
+                ],
+                'password' => 'password'
+            ]
+        ]);
+
+        // 認証子をロードするには、最初にセッションを実行する必要があります
+        $authenticationService->loadAuthenticator('Authentication.Session');
+
+        // メールとパスワードを選択するためのフォームデータチェックの設定
+        $authenticationService->loadAuthenticator('Authentication.Form', [
+            'fields' => [
+                'username' => 'username',
+                'password' => 'password'
+            ],
+            'loginUrl' => '/users/login'
+        ]);
+
+        return $authenticationService;
     }
 }

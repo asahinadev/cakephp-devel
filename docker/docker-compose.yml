@@ -16,6 +16,8 @@ services:
     build: ./php
     volumes:
     - ../application:/var/www/html
+    environment:
+      DATABASE_URL: "mysql://example:example@db/example?encoding=utf8&timezone=Asia/Tokyo&cacheMetadata=true&quoteIdentifiers=false&persistent=false"
     
 # mysql ---------------------------------------------------------------------
   db:

@@ -1,5 +1,4 @@
 <?php
-
 use Cake\Cache\Engine\FileEngine;
 use Cake\Database\Connection;
 use Cake\Database\Driver\Mysql;
@@ -7,6 +6,7 @@ use Cake\Error\ExceptionRenderer;
 use Cake\Log\Engine\FileLog;
 use Cake\Mailer\Transport\MailTransport;
 
+$debug = filter_var(env('DEBUG', false), FILTER_VALIDATE_BOOLEAN);
 return [
     /*
      * Debug Level:
@@ -17,7 +17,7 @@ return [
      * Development Mode:
      * true: Errors and warnings shown.
      */
-    'debug' => filter_var(env('DEBUG', false), FILTER_VALIDATE_BOOLEAN),
+    'debug' => $debug,
 
     /*
      * Configure basic information about the application.
@@ -56,16 +56,22 @@ return [
         'dir' => 'src',
         'webroot' => 'webroot',
         'wwwRoot' => WWW_ROOT,
-        //'baseUrl' => env('SCRIPT_NAME'),
+        // 'baseUrl' => env('SCRIPT_NAME'),
         'fullBaseUrl' => false,
         'imageBaseUrl' => 'img/',
         'cssBaseUrl' => 'css/',
         'jsBaseUrl' => 'js/',
         'paths' => [
-            'plugins' => [ROOT . DS . 'plugins' . DS],
-            'templates' => [APP . 'Template' . DS],
-            'locales' => [APP . 'Locale' . DS],
-        ],
+            'plugins' => [
+                ROOT . DS . 'plugins' . DS
+            ],
+            'templates' => [
+                APP . 'Template' . DS
+            ],
+            'locales' => [
+                APP . 'Locale' . DS
+            ]
+        ]
     ],
 
     /*
@@ -76,7 +82,7 @@ return [
      *   You should treat it as extremely sensitive data.
      */
     'Security' => [
-        'salt' => env('SECURITY_SALT'),
+        'salt' => env('SECURITY_SALT')
     ],
 
     /*
@@ -88,8 +94,8 @@ return [
      * enable timestamping regardless of debug value.
      */
     'Asset' => [
-        //'timestamp' => true,
-        // 'cacheTime' => '+1 year'
+        'timestamp' => true,
+        'cacheTime' => '+1 days'
     ],
 
     /*
@@ -99,7 +105,7 @@ return [
         'default' => [
             'className' => FileEngine::class,
             'path' => CACHE,
-            'url' => env('CACHE_DEFAULT_URL', null),
+            'url' => env('CACHE_DEFAULT_URL', null)
         ],
 
         /*
@@ -114,7 +120,7 @@ return [
             'path' => CACHE . 'persistent/',
             'serialize' => true,
             'duration' => '+1 years',
-            'url' => env('CACHE_CAKECORE_URL', null),
+            'url' => env('CACHE_CAKECORE_URL', null)
         ],
 
         /*
@@ -129,7 +135,7 @@ return [
             'path' => CACHE . 'models/',
             'serialize' => true,
             'duration' => '+1 years',
-            'url' => env('CACHE_CAKEMODEL_URL', null),
+            'url' => env('CACHE_CAKEMODEL_URL', null)
         ],
 
         /*
@@ -143,8 +149,8 @@ return [
             'path' => CACHE,
             'serialize' => true,
             'duration' => '+1 years',
-            'url' => env('CACHE_CAKEROUTES_URL', null),
-        ],
+            'url' => env('CACHE_CAKEROUTES_URL', null)
+        ]
     ],
 
     /*
@@ -181,7 +187,7 @@ return [
         'exceptionRenderer' => ExceptionRenderer::class,
         'skipLog' => [],
         'log' => true,
-        'trace' => true,
+        'trace' => true
     ],
 
     /*
@@ -220,8 +226,8 @@ return [
             //'password' => null,
             'client' => null,
             'tls' => false,
-            'url' => env('EMAIL_TRANSPORT_DEFAULT_URL', null),
-        ],
+            'url' => env('EMAIL_TRANSPORT_DEFAULT_URL', null)
+        ]
     ],
 
     /*
@@ -236,13 +242,13 @@ return [
     'Email' => [
         'default' => [
             'transport' => 'default',
-            'from' => 'you@localhost',
+            'from' => 'you@localhost'
             /*
-             * Will by default be set to config value of App.encoding, if that exists otherwise to UTF-8.
-             */
-            //'charset' => 'utf-8',
-            //'headerCharset' => 'utf-8',
-        ],
+         * * * Will by default be set to config value of App.encoding, if that exists otherwise to UTF-8.
+         */
+            // 'charset' => 'utf-8',
+            // 'headerCharset' => 'utf-8',
+        ]
     ],
 
     /*
@@ -283,7 +289,7 @@ return [
             'timezone' => 'UTC',
             'flags' => [],
             'cacheMetadata' => true,
-            'log' => false,
+            'log' => $debug,
 
             /*
              * Set identifier quoting to true if you are using reserved words or
@@ -304,7 +310,7 @@ return [
              */
             //'init' => ['SET GLOBAL innodb_stats_on_metadata = 0'],
 
-            'url' => env('DATABASE_URL', null),
+            'url' => env('DATABASE_URL', null)
         ],
 
         /*
@@ -315,18 +321,18 @@ return [
             'driver' => Mysql::class,
             'persistent' => false,
             'host' => 'localhost',
-            //'port' => 'non_standard_port_number',
-            'username' => 'my_app',
-            'password' => 'secret',
-            'database' => 'test_myapp',
-            //'encoding' => 'utf8mb4',
+            'port' => '3306',
+            'username' => 'example',
+            'password' => 'example',
+            'database' => 'example',
+            'encoding' => 'utf8mb4',
             'timezone' => 'UTC',
             'cacheMetadata' => true,
             'quoteIdentifiers' => false,
             'log' => false,
-            //'init' => ['SET GLOBAL innodb_stats_on_metadata = 0'],
-            'url' => env('DATABASE_TEST_URL', null),
-        ],
+            // 'init' => ['SET GLOBAL innodb_stats_on_metadata = 0'],
+            'url' => env('DATABASE_TEST_URL', null)
+        ]
     ],
 
     /*
@@ -339,7 +345,11 @@ return [
             'file' => 'debug',
             'url' => env('LOG_DEBUG_URL', null),
             'scopes' => false,
-            'levels' => ['notice', 'info', 'debug'],
+            'levels' => [
+                'notice',
+                'info',
+                'debug'
+            ]
         ],
         'error' => [
             'className' => FileLog::class,
@@ -347,7 +357,13 @@ return [
             'file' => 'error',
             'url' => env('LOG_ERROR_URL', null),
             'scopes' => false,
-            'levels' => ['warning', 'error', 'critical', 'alert', 'emergency'],
+            'levels' => [
+                'warning',
+                'error',
+                'critical',
+                'alert',
+                'emergency'
+            ]
         ],
         // To enable this dedicated query log, you need set your datasource's log flag to true
         'queries' => [
@@ -355,8 +371,10 @@ return [
             'path' => LOGS,
             'file' => 'queries',
             'url' => env('LOG_QUERIES_URL', null),
-            'scopes' => ['queriesLog'],
-        ],
+            'scopes' => [
+                'queriesLog'
+            ]
+        ]
     ],
 
     /*
@@ -399,6 +417,6 @@ return [
      * To use database sessions, load the SQL file located at config/schema/sessions.sql
      */
     'Session' => [
-        'defaults' => 'php',
-    ],
+        'defaults' => 'php'
+    ]
 ];

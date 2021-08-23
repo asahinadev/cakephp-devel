@@ -134,7 +134,7 @@ if ($isCli) {
  *
  * If you define fullBaseUrl in your config file you can remove this.
  */
-if (!Configure::read('App.fullBaseUrl')) {
+if (! Configure::read('App.fullBaseUrl')) {
     $s = null;
     if (env('HTTPS')) {
         $s = 's';
@@ -159,7 +159,7 @@ Security::setSalt(Configure::consume('Security.salt'));
  * If you are migrating from 2.x uncomment this code to
  * use a more compatible Mcrypt based implementation
  */
-//Security::engine(new \Cake\Utility\Crypto\Mcrypt());
+// Security::engine(new \Cake\Utility\Crypto\Mcrypt());
 
 /*
  * Setup detectors for mobile and tablet.
@@ -183,14 +183,10 @@ ServerRequest::addDetector('tablet', function ($request) {
  * locale specific date formats. For details see
  * @link https://book.cakephp.org/3/en/core-libraries/internationalization-and-localization.html#parsing-localized-datetime-data
  */
-Type::build('time')
-    ->useImmutable();
-Type::build('date')
-    ->useImmutable();
-Type::build('datetime')
-    ->useImmutable();
-Type::build('timestamp')
-    ->useImmutable();
+Type::build('time')->useImmutable();
+Type::build('date')->useImmutable();
+Type::build('datetime')->useImmutable();
+Type::build('timestamp')->useImmutable();
 
 /*
  * Custom Inflector rules, can be set to correctly pluralize or singularize

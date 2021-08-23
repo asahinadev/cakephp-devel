@@ -42,7 +42,7 @@ class AppController extends Controller
         parent::initialize();
 
         $this->loadComponent('RequestHandler', [
-            'enableBeforeRedirect' => false,
+            'enableBeforeRedirect' => false
         ]);
         $this->loadComponent('Flash');
 
@@ -50,6 +50,17 @@ class AppController extends Controller
          * Enable the following component for recommended CakePHP security settings.
          * see https://book.cakephp.org/3/en/controllers/components/security.html
          */
-        //$this->loadComponent('Security');
+        // $this->loadComponent('Security');
+
+        // Add this line to check authentication result and lock your site
+        $this->loadComponent('Authentication.Authentication');
+    }
+
+    public function beforeFilter(Event $event)
+    {
+        // login アクション実装ページは認証無効化
+        $this->Authentication->addUnauthenticatedActions([
+            'login'
+        ]);
     }
 }
